@@ -14,6 +14,18 @@ try:
 except:
         raise ValueError('Could not open serial port!')
 
+start_time = time.time()
+print ('Logging serial data to DRS_serial_log.txt for 3 seconds...')
+
+while (time.time() < (start_time + 3)): # Log data for three seconds
+	fp = open('DRS_serial_log.txt','a') # Open log file for append
+	serdat = ser.readline() # Try and read a line of serial data
+	fp.write(serdat) # Write any serial data to the log file
+	fp.close() # Close the log file so we can tail it from the console
+
+# Display the tail of the log file
+print subprocess.check_output("tail DRS_serial_log.txt", stderr=subprocess.STDOUT, shell=True)
+
 ser.write('GoGoGo\n') # Send the Go command
 
 print('Dropping in 30 seconds!')
