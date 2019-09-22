@@ -5,36 +5,28 @@ import serial
 import subprocess
 import time
 
+# Make sure the Pi serial Tx pin is enabled
+subprocess.check_call("gpio -g mode 14 alt5", shell=True)
+time.sleep(0.1)
+
 try:
-	yes_no = raw_input('Are you sure? (y/N) ')
+        ser = serial.Serial('/dev/ttyS0', 9600, timeout=1) # Try to open the serial port
 except:
-	yes_no = ''
+        raise ValueError('Could not open serial port!')
 
-if yes_no == '': yes_no = 'n'
+ser.write('GoGoGo\n') # Send the Go command
 
-if (yes_no == 'Y') or (yes_no == 'y'):
-	# Make sure the Pi serial Tx pin is enabled
-	subprocess.check_call("gpio -g mode 14 alt5", shell=True)
-	time.sleep(0.1)
+print('Dropping in 30 seconds!')
 
-	try:
-		ser = serial.Serial('/dev/ttyS0', 9600, timeout=1) # Try to open the serial port
-	except:
-		raise ValueError('Could not open serial port!')
+time.sleep(5) # Wait five seconds
 
-	ser.write('GoGoGo\n') # Send the Go command
+try:
+        ser.close() # Close the serial port
+except:
+        pass
 
-	print('Dropping in 30 seconds!')
+print('Shutting down...')
+time.sleep(1) # Wait an extra second
 
-	time.sleep(5) # Wait five seconds
-
-	try:
-		ser.close() # Close the serial port
-	except:
-		pass
-
-	print('Shutting down...')
-	time.sleep(1) # Wait an extra second
-
-	# Shutdown now
-	subprocess.check_call("sudo shutdown now", shell=True)
+# Shutdown now
+subprocess.check_call("sudo shutdown now", shell=True)
